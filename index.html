@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практическая №4. Кибер-открытки</title>
+    <style>
+        /* --- ГЛОБАЛЬНЫЕ СТИЛИ И ФОН --- */
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-cyan: #00f2fe;
+            --neon-pink: #fe0979;
+            --neon-purple: #7f00ff;
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            color: var(--text-main);
+            background: #0f0c29; /* Фолбэк */
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h2 {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            margin-bottom: 30px;
+        }
+
+        /* --- СТЕКЛЯННЫЕ ПАНЕЛИ (GLASSMORPHISM) --- */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.2);
+            border-color: rgba(0, 242, 254, 0.3);
+        }
+
+        /* --- ПОЛЯ ВВОДА --- */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+        }
+
+        input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- УПРАВЛЕНИЕ (КНОПКА И СЕЛЕКТ) --- */
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button#sendBtn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-purple));
+            color: white;
+            box-shadow: 0 0 15px rgba(254, 9, 121, 0.4);
+        }
+
+        button#sendBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(254, 9, 121, 0.8), 0 0 10px rgba(127, 0, 255, 0.8);
+        }
+
+        button#sendBtn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Стилизация выпадающего списка */
+        select {
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300f2fe%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+        }
+
+        select:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+        
+        select option {
+            background: #24243e;
+            color: white;
+        }
+
+        /* --- ОБЛАСТЬ ИСТОРИИ --- */
+        #history-area {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        #history-area h3 {
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        #cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- СТИЛИ ТЕМ ОТКРЫТОК --- */
+        .card-theme {
+            padding: 25px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform-origin: top center;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .card-content p {
+            margin: 8px 0;
+            font-size: 18px;
+            line-height: 1.4;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card-content p strong {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            opacity: 0.5;
+            margin-top: 15px;
+            text-align: right;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 1. Светлая (Минимализм) */
+        .theme-light {
+            background: #fdfdfd;
+            color: #111;
+            border: 1px solid #eee;
+        }
+        .theme-light .card-meta { color: #666; }
+
+        /* 2. Темная (Глубокий космос) */
+        .theme-dark {
+            background: radial-gradient(circle at top right, #1a1a2e, #0f0f15);
+            color: #e0e0e0;
+            border: 1px solid #333;
+        }
+
+        /* 3. Новогодняя (Изумрудный лес) */
+        .theme-newyear {
+            background: linear-gradient(135deg, #004d40, #001f1a);
+            color: #fff;
+            border: 1px solid #00bfa5;
+        }
+        .theme-newyear::before {
+            content: "❄ ❄ ❄";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px #00bfa5;
+            z-index: 1;
+        }
+
+        /* 4. Розовая (Киберпанк неон) */
+        .theme-pink {
+            background: linear-gradient(135deg, #2b003a, #6a0038);
+            color: #fff;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 20px rgba(254, 9, 121, 0.3);
+        }
+        .theme-pink .card-content p strong { color: var(--neon-pink); }
+
+        /* 5. Синяя (Глубокий океан) */
+        .theme-space {
+            background: linear-gradient(to bottom, #001f3f, #000000);
+            color: #7fdbff;
+            border: 1px solid #0074D9;
+        }
+        .theme-space .card-content p strong { color: #7fdbff; }
+        
+        /* Декоративные элементы для тем */
+        .theme-dark::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px);
+            background-size: 50px 50px;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h2>Генератор Кибер-Открыток</h2>
+
+    <!-- Блок ввода (Стеклянная панель) -->
+    <div class="glass-panel">
+        <div class="input-group">
+            <input type="text" id="textInput" placeholder="Введите послание...">
+            <input type="text" id="fromInput" placeholder="От кого...">
+            <input type="text" id="toInput" placeholder="Кому...">
+        </div>
+
+        <div class="controls">
+            <select id="themeSelect">
+                <option value="theme-light">Светлая</option>
+                <option value="theme-dark">Темная</option>
+                <option value="theme-newyear">Новогодняя</option>
+                <option value="theme-pink">Неоновая</option>
+                <option value="theme-space">Океан</option>
+            </select>
+            
+            <!-- Кнопка изначально disabled -->
+            <button id="sendBtn" disabled onclick="createPostcard()">Отправить</button>
+        </div>
+    </div>
+
+    <!-- Область истории (Стеклянная панель) -->
+    <div id="history-area" class="glass-panel">
+        <h3>История открыток</h3>
+        <div id="cards-container">
+            <!-- Сюда будут добавляться открытки -->
+        </div>
+    </div>
+
+    <script>
+        // 1. Получаем элементы
+        const textInput = document.getElementById('textInput');
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const themeSelect = document.getElementById('themeSelect');
+        const cardsContainer = document.getElementById('cards-container');
+
+        // 2. Логика проверки полей
+        function validateForm() {
+            if (textInput.value.trim() !== '' && 
+                fromInput.value.trim() !== '' && 
+                toInput.value.trim() !== '') {
+                sendBtn.disabled = false;
+            } else {
+                sendBtn.disabled = true;
+            }
+        }
+
+        textInput.addEventListener('input', validateForm);
+        fromInput.addEventListener('input', validateForm);
+        toInput.addEventListener('input', validateForm);
+
+
+        // 3. Работа с LocalStorage
+        let postcards = JSON.parse(localStorage.getItem('myPostcards')) || [];
+
+        // Функция отрисовки одной открытки
+        function renderCard(cardData) {
+            const cardDiv = document.createElement('div');
+            
+            // --- ИСПРАВЛЕНИЕ: Добавляем класс темы ---
+            cardDiv.classList.add('card-theme');
+            cardDiv.classList.add(cardData.theme); 
+            
+            cardDiv.innerHTML = `
+                <div class="card-content">
+                    <p><strong>Кому:</strong> ${cardData.to}</p>
+                    <p><strong>Послание:</strong> ${cardData.text}</p>
+                    <p><strong>От кого:</strong> ${cardData.from}</p>
+                </div>
+                <div class="card-meta">${cardData.date}</div>
+            `;
+            
+            // Добавляем в начало списка
+            cardsContainer.prepend(cardDiv);
+        }
+
+        // Функция отрисовки всех открыток при загрузке
+        function renderAllCards() {
+            cardsContainer.innerHTML = ''; 
+            for (let i = postcards.length - 1; i >= 0; i--) {
+                renderCard(postcards[i]);
+            }
+        }
+
+        // 4. Создание открытки
+        function createPostcard() {
+            const newCard = {
+                text: textInput.value,
+                from: fromInput.value,
+                to: toInput.value,
+                theme: themeSelect.value,
+                date: new Date().toLocaleString('ru-RU', { 
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                })
+            };
+
+            postcards.push(newCard);
+            localStorage.setItem('myPostcards', JSON.stringify(postcards));
+            
+            renderCard(newCard);
+
+            // Очищаем поля и блокируем кнопку
+            textInput.value = '';
+            fromInput.value = '';
+            toInput.value = '';
+            validateForm();
+        }
+
+        // 5. Инициализация
+        renderAllCards();
+
+    </script>
+</body>
+</html>
